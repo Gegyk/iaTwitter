@@ -42,8 +42,8 @@ def getTweetsNoEntrenadosText():
 """
 Métodos del archivo tweetsEntrenados
 """
-def guardarTweetEntrenado(tweet):
-    # Cargar el archivo JSON
+def guardarTweetEntrenado(tweet):    
+    tweet = limpiarTexto(tweet)
     with open(archivos.TWEETSENTRENADOS_01, 'r', encoding="utf-8") as file:
         data = json.load(file)
 
@@ -81,7 +81,9 @@ def limpiarTexto(texto):
     # Elimina caracteres no alfabéticos pero dejando los caracteres especiales como emojis y varios símbolos
     texto = re.sub(r"[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\ud83c-\ud83e!\"#$%&'()*+,-./0123456789:;<=>?@[\]^_`{|}~¡¿¥©®™§°±∑π∞≠≤≥←↑→↓∩∪⊆⊂⊇⊃⊥⊗⊙⋯⊕ℂℕℝℤ∀∃∑∈∉≈≡≪≫∫∮]", "", texto)
     # Elimina saltos de línea y otros caracteres de control como tabulaciones
-    texto = re.sub(r"[\n\t\r]", " ", texto)  # Reemplaza saltos de línea, tabulaciones y retorno de carro por espacios
+    texto = re.sub(r"[\n\t\r]", " ", texto)
+    # Elimina espacios extra
+    texto = re.sub(r"\s+", " ", texto).strip()  # Reemplaza múltiples espacios por uno y elimina espacios al inicio y final
     # Convierte a minúsculas
     texto = texto.lower()
     return texto

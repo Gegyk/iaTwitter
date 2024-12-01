@@ -30,7 +30,7 @@ while True:
     Modelo.entrenarModelo(Texto.xEntradas, Texto.ySalidas)
     
     seed = "que tal tu dia:  "
-    generated_text = Texto.generate_text(Modelo.model, seed, length=800, temperature=0.5)
+    generated_text = Texto.generate_text(Modelo.model, seed, length=200, temperature=0.5)
 
     print("\n=== Texto Generado ===\n")
     print(generated_text)
