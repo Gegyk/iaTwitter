@@ -14,18 +14,11 @@ def getCantidadCaracteresUnicos():
     return len(chars)
 
 
-def cargarProcesarTexto():
+def cargarProcesarTexto(texto):
     global chars, char_to_idx, idx_to_char, xEntradas, ySalidas
 
-    try:
-        with open("iaTwitter/datos/dataset.txt", "r", encoding="utf-8") as f:
-            text = f.read().lower()
-    except FileNotFoundError:
-        print("Error: El archivo 'dataset.txt' no se encuentra en el directorio actual.")
-        exit()
-
     # Crear un diccionario de caracteres únicos
-    chars = sorted(list(set(text)))
+    chars = sorted(list(set(texto)))
     char_to_idx = {char: idx for idx, char in enumerate(chars)}
     idx_to_char = {idx: char for idx, char in enumerate(chars)}
 
@@ -33,13 +26,13 @@ def cargarProcesarTexto():
     sequences = []
     next_chars = []
 
-    for i in range(0, len(text) - seqLength, step):
-        sequences.append(text[i:i + seqLength])
-        next_chars.append(text[i + seqLength])
+    for i in range(0, len(texto) - seqLength, step):
+        sequences.append(texto[i:i + seqLength])
+        next_chars.append(texto[i + seqLength])
 
     # Convertir secuencias a tensores de entrada (xEntradas) y salida (ySalidas)
-    xEntradas = np.zeros((len(sequences), seqLength, len(chars)), dtype=np.bool_)
-    ySalidas = np.zeros((len(sequences), len(chars)), dtype=np.bool_)
+    xEntradas = np.zeros((len(sequences), seqLength, len(chars)), dtype=np.float32)
+    ySalidas = np.zeros((len(sequences), len(chars)), dtype=np.float32)
 
     for i, seq in enumerate(sequences):
         for t, char in enumerate(seq):

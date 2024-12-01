@@ -1,3 +1,5 @@
+from Constantes import archivos
+from ControllerDatos import ControllerTweets as ContTweet
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import LSTM, Dense
 
@@ -6,10 +8,14 @@ model = None
 def entrenarModelo(x, y):
     global model
     
-    EPOCHS = 5
+    EPOCHS = 20
     BATCH_SIZE = 128
 
     model.fit(x, y, batch_size=BATCH_SIZE, epochs=EPOCHS)
+    
+    model.save(archivos.MODELOENTRENADO_01)
+    
+    ContTweet.borrarDatosTweetNoEntrenado()
 
 def crearModelo(seqLength, numChars):
     global model
@@ -22,7 +28,7 @@ def crearModelo(seqLength, numChars):
     model.compile(optimizer="adam", loss="categorical_crossentropy")
     model.summary()
 
-def getModelo():
+def getModeloEntrenado():
     global model
-    model = load_model("modelo_entrenado.h5")
+    model = load_model(archivos.MODELOENTRENADO_01)
 

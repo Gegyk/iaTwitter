@@ -1,26 +1,18 @@
-from twitter import Authentication as autenticacion
-
-class TwitterApi:
+from Twitter import Authentication as autenticacion
     
-    cuenta = autenticacion.cuentaTwitter
+cuenta = autenticacion.cuentaTwitter
 
-    #def obtenerTweet():clea
+def getUltimoTweet(username):
     
-    def obtenerSeguidos(username="IasPaco36305"):
-        
-         # Obtener el usuario usando el nombre de usuario (username) en API V2
-        user = autenticacion.cuentaTwitter.get_user(username=username)
+    user_response = cuenta.get_user(username=username)
 
-        # Mostrar el nombre de usuario consultado
-        print(f"Usuarios seguidos por {user.data['username']}:")
+    # Obtener tweets del usuario
+    user_id = user_response.data.id  # ID del usuario
+    tweets_response = cuenta.get_users_tweets(id=user_id, max_results=5)  # Mínimo permitido: 5
 
-        # Usamos el método get_users_following() para obtener los usuarios seguidos
-        # Este método es el adecuado para la API V2 y no debería causar el error 403
-        following = autenticacion.cuentaTwitter.get_users_following(id=user.data['id'])
-
-        # Mostrar los resultados
-        if following.data:
-            for friend in following.data:
-                print(f"- {friend.username}")
-        else:
-            print("No se encontraron usuarios seguidos.")
+    # Verificar si hay tweets disponibles
+    if tweets_response.data:
+        # Obtener el último tweet de la lista
+        return tweets_response.data
+    else:
+        return 0

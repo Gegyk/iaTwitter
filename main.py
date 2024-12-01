@@ -1,10 +1,28 @@
-from texto import texto as Texto
-from modelo import modelo as Modelo
+from Constantes import archivos
+from Texto import texto as Texto
+from Modelo import modelo as Modelo
+from Twitter import TwitterApi as TwApi
+from ControllerDatos import ControllerTweets as ContTweets
+from ControllerDatos import ControllerSiguiendo as ContSeg
+import os
 
 
-Texto.cargarProcesarTexto()
+cuentaSeguida =  ContSeg.getSeguidorAleatorio()
+tweets = TwApi.getUltimoTweet(cuentaSeguida)
 
-Modelo.crearModelo(Texto.seqLength, Texto.getCantidadCaracteresUnicos())
+for tweet in tweets:
+    if not ContTweets.comprobarTweetRepetido(tweet.text):
+        ContTweets.guardarTweetNoEntrenado(tweet.text)
+        ContTweets.guardarTweetEntrenado(tweet.text)
+
+Texto.cargarProcesarTexto(ContTweets.getTweetsNoEntrenadosText())
+
+if os.path.exists(archivos.MODELOENTRENADO_01):
+    print("lo recogi")
+    Modelo.getModeloEntrenado()
+else:
+    print("no lo recogi y pare")
+    Modelo.crearModelo(Texto.seqLength, Texto.getCantidadCaracteresUnicos())
 
 Modelo.entrenarModelo(Texto.xEntradas, Texto.ySalidas)
 
