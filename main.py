@@ -25,9 +25,15 @@ while True:
         Modelo.getModeloEntrenado()
     else:
         print("Modelo nuevo creado...")
-        Modelo.crearModelo(Texto.seqLength, Texto.getCantidadCaracteresUnicos())
+        #Modelo.crearModelo(Texto.seqLength, Texto.getCantidadCaracteresUnicos())
 
     Modelo.entrenarModelo(Texto.xEntradas, Texto.ySalidas)
+    
+    seed = "que tal tu dia:  "
+    generated_text = Texto.generate_text(Modelo.model, seed, length=800, temperature=0.5)
+
+    print("\n=== Texto Generado ===\n")
+    print(generated_text)
     
     time.sleep(8*60*60)    
 
