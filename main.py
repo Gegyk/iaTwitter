@@ -8,26 +8,28 @@ import os
 import time
 
 while True:
-    cuentaSeguida =  ContSeg.getSeguidorAleatorio()
+    cuentaSeguida =  ContSeg.getSeguidorAleatorio()    
     tweets = TwApi.getUltimoTweet(cuentaSeguida)
 
-    for tweet in tweets:
-        if not ContTweets.comprobarTweetRepetido(tweet.text):
-            ContTweets.guardarTweetNoEntrenado(tweet.text)
-            ContTweets.guardarTweetEntrenado(tweet.text)
+    if tweets != None:
+        for tweet in tweets:
+            if not ContTweets.comprobarTweetRepetido(tweet.text):
+                ContTweets.guardarTweetNoEntrenado(tweet.text)
+                ContTweets.guardarTweetEntrenado(tweet.text)
+
 
     Texto.cargarProcesarTexto(ContTweets.getTweetsNoEntrenadosText())
 
     if os.path.exists(archivos.MODELOENTRENADO_01):
-        print("lo recogi")
+        print("Modelo ya entrenado recogido...")
         Modelo.getModeloEntrenado()
     else:
-        print("no lo recogi y pare")
+        print("Modelo nuevo creado...")
         Modelo.crearModelo(Texto.seqLength, Texto.getCantidadCaracteresUnicos())
 
     Modelo.entrenarModelo(Texto.xEntradas, Texto.ySalidas)
     
-    time.sleep(8*60*60)
+    time.sleep(8*60*60)    
 
 
 """

@@ -36,7 +36,8 @@ def cargarProcesarTexto(texto):
 
     for i, seq in enumerate(sequences):
         for t, char in enumerate(seq):
-            xEntradas[i, t, char_to_idx[char]] = 1
+            if char in char_to_idx:
+                xEntradas[i, t, char_to_idx[char]] = 1
         ySalidas[i, char_to_idx[next_chars[i]]] = 1
 
 def generate_text(model, seed_text, length, temperature=1.0):

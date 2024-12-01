@@ -1,12 +1,15 @@
 from Constantes import archivos
 import json
+import re
 
 """
 Metodos del archivo tweetsNoEntrenados
 """
-def guardarTweetNoEntrenado(tweet):    
+def guardarTweetNoEntrenado(tweet):
+    tweet = limpiarTexto(tweet)   
+     
     # Cargar el archivo JSON
-    with open(archivos.TWEETSNOENTRENADOS_01, 'r') as file:
+    with open(archivos.TWEETSNOENTRENADOS_01, 'r', encoding="utf-8") as file:
         data = json.load(file)
 
     # Agregar un nuevo tweet  
@@ -25,27 +28,15 @@ def borrarDatosTweetNoEntrenado():
         json.dump(data, file, indent=4) 
         
 def getTweetsNoEntrenadosText():
-    """
-    Lee un archivo JSON con tweets y devuelve un string con los tweets concatenados,
-    separados por un punto (.).
-    
-    Args:
-        ruta_json (str): Ruta al archivo JSON.
-
-    Returns:
-        str: Tweets concatenados separados por un punto.
-    """    
-
     # Leer el archivo JSON
-    with open(archivos.TWEETSNOENTRENADOS_01, 'r') as file:
+    with open(archivos.TWEETSNOENTRENADOS_01, 'r', encoding="utf-8") as file:
         data = json.load(file)
     
     # Obtener la lista de tweets
     tweets = data.get("tweetsNoEntrenados", [])
     
     # Concatenar los tweets separados por un punto
-    tweets_concatenados = ". \n\n".join(tweets)
-    
+    tweets_concatenados = ". ".join(tweets)        
     return tweets_concatenados
 
 
@@ -56,7 +47,7 @@ Metodos del archivo tweetsEntrenados
 """
 def guardarTweetEntrenado(tweet):
     # Cargar el archivo JSON
-    with open(archivos.TWEETSENTRENADOS_01, 'r') as file:
+    with open(archivos.TWEETSENTRENADOS_01, 'r', encoding="utf-8") as file:
         data = json.load(file)
 
     # Agregar un nuevo seguidor    
@@ -68,7 +59,8 @@ def guardarTweetEntrenado(tweet):
 
 
 def comprobarTweetRepetido(tweet):
-    with open(archivos.TWEETSENTRENADOS_01, 'r') as file:
+    tweet = limpiarTexto(tweet)
+    with open(archivos.TWEETSENTRENADOS_01, 'r', encoding="utf-8") as file:
         data = json.load(file)
                 
     # Obtener la lista de tweets
@@ -79,3 +71,21 @@ def comprobarTweetRepetido(tweet):
         return True  
     else:
         return False 
+
+
+
+
+"""
+Metodos de uso global
+"""
+
+def limpiarTexto(texto):
+    # Elimina URLs
+    texto = re.sub(r"http\S+", "", texto)
+    # Elimina menciones (@usuario)
+    texto = re.sub(r"@\w+", "", texto)
+    # Elimina caracteres no alfabéticos y emojis
+    texto = re.sub(r"[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]", "", texto)
+    # Convierte a minúsculas
+    texto = texto.lower()
+    return texto
