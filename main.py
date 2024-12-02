@@ -25,7 +25,7 @@ while True:
         Modelo.getModeloEntrenado()
     else:
         print("Modelo nuevo creado...")
-        #Modelo.crearModelo(Texto.seqLength, Texto.getCantidadCaracteresUnicos())
+        Modelo.crearModelo(Texto.seqLength, Texto.getCantidadCaracteresUnicos())
 
     Modelo.entrenarModelo(Texto.xEntradas, Texto.ySalidas)
     

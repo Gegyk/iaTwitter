@@ -60,15 +60,15 @@ def cargarProcesarTexto(texto):
         ySalidas[i, char_to_idx[next_chars[i]]] = 1
 
 
-def generate_text(model, seed_text, length, temperature=1.0):
+def generate_text(model, seed_text, length, temperature=1, top_k=50, top_p=0.9):
     global chars, char_to_idx, idx_to_char
+    seqLength = len(seed_text)
     
     # Asegurarse de que la longitud del seed sea >= seqLength
-    seed_text = seed_text[-seqLength:]
+    seed_text = seed_text[-seqLength:] if len(seed_text) >= seqLength else ' ' * (seqLength - len(seed_text)) + seed_text
 
     generated = seed_text
     for _ in range(length):
-        # Crear un tensor de entrada basado en el texto actual
         x_pred = np.zeros((1, seqLength, len(chars)))
 
         # Rellenar el tensor x_pred con la codificación one-hot de los caracteres en el seed_text
@@ -76,26 +76,44 @@ def generate_text(model, seed_text, length, temperature=1.0):
             if char in char_to_idx:
                 x_pred[0, t, char_to_idx[char]] = 1
             else:
-                # Si el carácter no está en el diccionario, podemos asignarlo a un valor predeterminado
-                # Si no quieres usar 0 para caracteres no encontrados, puedes añadir un valor especial
-                # para "caracteres desconocidos" o manejarlo de otra forma.
-                x_pred[0, t, 0] = 1  # Este valor es arbitrario y debe coincidir con tu lógica de codificación.
-
-        # Asegúrate de que `x_pred` tenga la forma adecuada antes de pasarlo al modelo
-        assert x_pred.shape == (1, seqLength, len(chars)), f"Expected shape (1, {seqLength}, {len(chars)}), but got {x_pred.shape}"
+                x_pred[0, t, char_to_idx['<UNK>']] = 1  # Manejo de caracteres desconocidos
 
         # Predecir el próximo carácter
         predictions = model.predict(x_pred, verbose=0)[0]
-        predictions = np.log(predictions) / temperature
+        predictions = np.log(np.maximum(predictions, 1e-10)) / temperature
         exp_preds = np.exp(predictions)
         predictions = exp_preds / np.sum(exp_preds)
 
-        # Elegir el siguiente carácter según la predicción
-        next_index = np.random.choice(len(chars), p=predictions)
+        # Aplicar top_k y top_p
+        if top_k is not None:
+            # Filtrar por Top-K
+            indices_to_consider = np.argsort(predictions)[-top_k:]
+            probabilities = predictions[indices_to_consider]
+            probabilities /= np.sum(probabilities)  # Normalizar las probabilidades
+            next_index = np.random.choice(indices_to_consider, p=probabilities)
+        elif top_p is not None:
+            # Filtrar por Top-P
+            sorted_indices = np.argsort(predictions)[::-1]
+            sorted_probs = predictions[sorted_indices]
+            cumulative_probs = np.cumsum(sorted_probs)
+            
+            # Seleccionar los índices dentro del umbral de probabilidad
+            indices_to_consider = sorted_indices[cumulative_probs <= top_p]
+            if len(indices_to_consider) == 0:
+                indices_to_consider = sorted_indices[:1]  # Al menos un carácter debe ser considerado
+            probabilities = predictions[indices_to_consider]
+            probabilities /= np.sum(probabilities)  # Normalizar las probabilidades
+            next_index = np.random.choice(indices_to_consider, p=probabilities)
+        else:
+            # Si no se aplican filtros, usar toda la distribución
+            next_index = np.random.choice(len(chars), p=predictions)
+
         next_char = idx_to_char[next_index]
 
         # Agregar el carácter generado al texto
         generated += next_char
         seed_text += next_char
+        seed_text = seed_text[-seqLength:]  # Mantener tamaño del seed_text
 
     return generated
+
